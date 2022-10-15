@@ -21,3 +21,8 @@ Route::get('/fruta', function ()
 {
     return 'manzana';
 });
+Route::get('/prueba', function ()
+{
+    $nombre = 'marcos';
+    return view('prueba', [ 'nombre'=>$nombre ]);
+});
