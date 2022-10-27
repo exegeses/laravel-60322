@@ -42,3 +42,43 @@ Route::post('/procesa', function ()
                     ]
                 );
 });
+
+########################
+## CRUD de regiones
+Route::get('/regiones', function ()
+{
+    //obtenemos listado de regiones
+    $regiones = DB::select('SELECT idRegion, regNombre FROM regiones');
+    //retornamos vista
+    return view('regiones', [ 'regiones'=>$regiones ] );
+});
+Route::get('/region/create', function (){
+    return view('regionCreate');
+});
+Route::post('/region/store', function ()
+{
+    //capturamos dato enviado por el form
+    $regNombre = request()->regNombre;
+    //insertar dato en tabla regiones
+    try {
+        DB::insert("
+                INSERT INTO regiones
+                        (regNombre)
+                    VALUES
+                        ( :regNombre )",
+                        [ $regNombre ]
+                );
+        return redirect('/regiones')
+                ->with([
+                    'mensaje'=>'Región: '.$regNombre.' agregada correctamente.',
+                    'css'=>'success'
+                ]);
+    }
+    catch ( \Throwable $th ){
+        return redirect('/regiones')
+            ->with([
+                'mensaje'=>'No se pudo agregar la región: '.$regNombre,
+                'css'=>'danger'
+            ]);
+    }
+});
