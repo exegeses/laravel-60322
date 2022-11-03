@@ -36,7 +36,7 @@
                     <i class="bi bi-pencil-square"></i>
                     Modificar
                 </a>
-                <a href="/region/delete/id" class="btn btn-outline-secondary me-1">
+                <a href="/region/delete/{{ $region->idRegion }}" class="btn btn-outline-secondary me-1">
                     <i class="bi bi-trash"></i>
                     &nbsp;Eliminar&nbsp;
                 </a>
