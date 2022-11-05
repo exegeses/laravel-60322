@@ -202,3 +202,99 @@ Route::get('/destino/create', function ()
                     ->get();
     return view('destinoCreate', ['regiones' => $regiones]);
 });
+Route::post('/destino/store', function ()
+{
+    $destNombre = request()->destNombre;
+    $idRegion = request()->idRegion;
+    $destPrecio = request()->destPrecio;
+    $destAsientos = request()->destAsientos;
+    $destDisponibles = request()->destDisponibles;
+    try {
+        DB::table('destinos')
+                ->insert(
+                    [
+                        'destNombre'=>$destNombre,
+                        'idRegion'=>$idRegion,
+                        'destPrecio'=>$destPrecio,
+                        'destAsientos'=>$destAsientos,
+                        'destDisponibles'=>$destDisponibles
+                    ]
+                );
+        return redirect('/destinos')
+                    ->with(
+                            [
+                                'mensaje'=>'Destino: '.$destNombre.' agregado correctemente.',
+                                'css'=>'success'
+                            ]
+                            );
+    }
+    catch ( \Throwable $th ){
+        return redirect('/destinos')
+            ->with([
+                'mensaje'=>'No se pudo agregar el destino: '.$destNombre,
+                'css'=>'danger'
+            ]);
+    }
+});
+Route::get('/destino/edit/{id}', function ( $id )
+{
+    //obtenemos datos de destino por su id
+    $destino = DB::table('destinos')
+                ->where('idDestino', $id)
+                ->first();
+    //obtenemos listado de regiones
+    $regiones = DB::table('regiones')->get();
+    return view('destinoEdit',
+                    [
+                        'destino'=>$destino,
+                        'regiones'=>$regiones
+                    ]
+            );
+});
+Route::patch('/destino/update', function ()
+{
+    $destNombre = request()->destNombre;
+    $idRegion = request()->idRegion;
+    $destPrecio = request()->destPrecio;
+    $destAsientos = request()->destAsientos;
+    $destDisponibles = request()->destDisponibles;
+    $idDestino = request()->idDestino;
+    try {
+        DB::table('destinos')
+                ->where( 'idDestino', $idDestino )
+                ->update(
+                    [
+                        'destNombre'=>$destNombre,
+                        'idRegion'=>$idRegion,
+                        'destPrecio'=>$destPrecio,
+                        'destAsientos'=>$destAsientos,
+                        'destDisponibles'=>$destDisponibles
+                    ]
+                );
+        return redirect('/destinos')
+            ->with(
+                [
+                    'mensaje'=>'Destino: '.$destNombre.' modificado correctemente.',
+                    'css'=>'success'
+                ]
+            );
+    }
+    catch ( \Throwable $th ){
+        return redirect('/destinos')
+            ->with([
+                'mensaje'=>'No se pudo modificar el destino: '.$destNombre,
+                'css'=>'danger'
+            ]);
+    }
+});
+Route::get('/destino/delete/{id}', function ( $id )
+{
+    //obtenemos datos de destino por su id
+    $destino = DB::table('destinos')
+                ->select( 'idDestino', 'destNombre', 'regNombre' )
+                ->join('regiones', 'regiones.idRegion', '=', 'destinos.idRegion')
+                ->where('idDestino', $id)
+                ->first();
+
+    return view('destinoDelete', [ 'destino'=>$destino ]);
+});
