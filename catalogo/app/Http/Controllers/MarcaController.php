@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Marca;
+use App\Models\Producto;
 use Illuminate\Http\Request;
 
 class MarcaController extends Controller
@@ -16,7 +17,7 @@ class MarcaController extends Controller
     {
         //obtenemos listado de marcas
         //$marcas = DB::table('marcas)->get();
-        $marcas = Marca::paginate(3);
+        $marcas = Marca::paginate(7);
         return view('marcas', [ 'marcas'=>$marcas ]);
     }
 
@@ -104,9 +105,12 @@ class MarcaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit( $id )
     {
-        //
+        //obtenemos una marca por su id
+        //DB::table('marcas')->where('idMarca', $id)->first();
+        $Marca = Marca::find($id);
+        return view('marcaEdit', [ 'Marca'=>$Marca ]);
     }
 
     /**
@@ -116,9 +120,57 @@ class MarcaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        //validamos
+        $this->validarForm( $request );
+
+        //capturamos datos enviados por el from
+        $idMarca = $request->idMarca;
+        $mkNombre = $request->mkNombre;
+        try {
+            //obtenemos marca por su id
+            $Marca = Marca::find($idMarca);
+            //modificamos atributo mkNombre
+            $Marca->mkNombre = $mkNombre;
+            //almacenamos en tabla marcas
+            $Marca->save();
+
+            return redirect('/marcas')
+                ->with(
+                    [
+                        'mensaje'=>'Marca: '.$mkNombre.' modificada correctamente.',
+                        'css'=>'success'
+                    ]);
+        }
+        catch ( \Throwable $th ){
+            return redirect('/marcas')
+                ->with(
+                    [
+                        'mensaje'=>'No se pudo modificar la marca: '.$mkNombre,
+                        'css'=>'danger'
+                    ]
+                );
+        }
+    }
+
+    public function confirm( $id )
+    {
+        //obtenemos datos de una marca por su ID
+        $Marca = Marca::find($id);
+
+        //si NO hay productos relacionados a esa marca
+        $Producto = Producto::firstWhere('idMarca', $Marca->idMarca);
+
+        if ( !$Producto ) {
+            //podemos darle vista de CONFIRMACION de baja
+            return 'vista de CONFIRMACION de baja';
+        }
+
+        //si HAY productos relacionados a esa marca
+            //redirección a panel de marcas con mensaje
+        return 'redirección a panel de marcas con mensaje de NO SE PUEDE';
+
     }
 
     /**
