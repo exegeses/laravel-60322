@@ -1,4 +1,4 @@
-<img src="imagenes/laravel-eloquent-orm.png">
+<img src="../imagenes/laravel-eloquent-orm.png">
 
 # Eloquent ORM
 
