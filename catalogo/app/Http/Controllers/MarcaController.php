@@ -161,16 +161,21 @@ class MarcaController extends Controller
 
         //si NO hay productos relacionados a esa marca
         $Producto = Producto::firstWhere('idMarca', $Marca->idMarca);
-
         if ( !$Producto ) {
             //podemos darle vista de CONFIRMACION de baja
-            return 'vista de CONFIRMACION de baja';
+            return view('marcaDelete', [ 'Marca'=>$Marca ]);
         }
 
         //si HAY productos relacionados a esa marca
             //redirección a panel de marcas con mensaje
-        return 'redirección a panel de marcas con mensaje de NO SE PUEDE';
+        return redirect('/marcas')
+                    ->with(
+                        [
+                            'mensaje'=>'No se puede eliminar la marca: '.$Marca->mkNombre.' ya que tiene productos relacionados.',
+                            'css'=>'warning'
 
+                        ]
+                    );
     }
 
     /**
@@ -179,8 +184,35 @@ class MarcaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy( Request $request )
     {
-        //
+        $mkNombre = $request->mkNombre;
+        try {
+            $idMarca = $request->idMarca;
+            /*
+             * $Marca = table('marcas')->where('idMarca', $idMarca)->first();
+             * $Marca->delete();
+             *
+             * Marca::where('idMarca', $idMarca)->delete();
+             *
+             * $Marca = Marca::find($idMarca);
+             * $Marca->delete();
+             * */
+            Marca::destroy($idMarca);
+            return redirect('/marcas')
+                ->with(
+                    [
+                        'mensaje'=>'Marca: '.$mkNombre.' eliminada correctamente.',
+                        'css'=>'success'
+                    ]);
+        }catch ( \Throwable $th ){
+            return redirect('/marcas')
+                ->with(
+                    [
+                        'mensaje'=>'No se pudo eliminar la marca: '.$mkNombre,
+                        'css'=>'danger'
+                    ]
+                );
+        }
     }
 }
