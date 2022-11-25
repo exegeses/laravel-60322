@@ -118,6 +118,7 @@ class ProductoController extends Controller
             $Producto->idCategoria = $request->idCategoria;
             $Producto->prdDescripcion = $request->prdDescripcion;
             $Producto->prdImagen = $prdImagen;
+            $Producto->prdActivo = 1; // hardcoding
             $Producto->save();
             return redirect('/productos')
                 ->with([

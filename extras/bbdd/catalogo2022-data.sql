@@ -87,7 +87,7 @@ CREATE TABLE `productos` (
   `idCategoria` tinyint UNSIGNED NOT NULL,
   `prdDescripcion` text NOT NULL,
   `prdImagen` varchar(45) NOT NULL,
-  `prdActivo` tinyint(1) NOT NULL
+  `prdActivo` tinyint(1) NOT NULL default '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
