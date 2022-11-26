@@ -41,12 +41,12 @@ class ProductoController extends Controller
         );
     }
 
-    private function validarForm( Request $request )
+    private function validarForm( Request $request, $idProducto = null )
     {
         $request->validate(
             //reglas
             [
-                'prdNombre'=>'required|min:2|max:50|unique:App\Models\Producto,prdNombre',
+                'prdNombre'=>'required|min:2|max:50|unique:App\Models\Producto,prdNombre,'.$idProducto.'idProducto',
                 'prdPrecio'=>'required|numeric|min:0',
                 'idMarca'=>'required',
                 'idCategoria'=>'required',
@@ -75,8 +75,14 @@ class ProductoController extends Controller
 
     private function subirImagen( Request $request ) : string
     {
-        //si no enviaron archivo
+        //si no enviaron archivo store()
         $prdImagen = 'noDisponible.png';
+
+        //si no enviarton archivo update()
+        //ver si hay imgActual
+        if( $request->has('imgActual') ){
+            $prdImagen = $request->imgActual;
+        }
 
         //si enviaron archivo
         //if( $_FILES['prdImagen']['error']==0 ){
@@ -154,9 +160,20 @@ class ProductoController extends Controller
      * @param  \App\Models\Producto  $producto
      * @return \Illuminate\Http\Response
      */
-    public function edit(Producto $producto)
+    public function edit( $id )
     {
-        //
+        //obtenemos datos de producto por su ID
+        $Producto = Producto::find($id);
+        //obtenemos listados de marcas y categorías
+        $marcas = Marca::orderBy('mkNombre')->get();
+        $categorias = Categoria::orderBy('catNombre')->get();
+        return view('productoEdit',
+                    [
+                        'marcas'=>$marcas,
+                        'categorias'=>$categorias,
+                        'Producto'=>$Producto
+                    ]
+        );
     }
 
     /**
@@ -166,9 +183,40 @@ class ProductoController extends Controller
      * @param  \App\Models\Producto  $producto
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Producto $producto)
+    public function update(Request $request)
     {
-        //
+        $prdNombre = $request->prdNombre;
+        //validación
+        $this->validarForm($request, $request->idProducto);
+        //subir imagen *
+        $prdImagen = $this->subirImagen($request);
+        //magia para modificar
+        try {
+            //obtenemos Producto por su id
+            $Producto = Producto::find( $request->idProducto );
+            //asignamos atributos
+            $Producto->prdNombre = $prdNombre;
+            $Producto->prdPrecio = $request->prdPrecio;
+            $Producto->idMarca = $request->idMarca;
+            $Producto->idCategoria = $request->idCategoria;
+            $Producto->prdDescripcion = $request->prdDescripcion;
+            $Producto->prdImagen = $prdImagen;
+            $Producto->save();
+            return redirect('/productos')
+                ->with([
+                    'mensaje'=>'Producto: '.$prdNombre.' modificado correctamente',
+                    'css'=>'success'
+                ]);
+        }
+        catch ( \Throwable $th ){
+            return redirect('/productos')
+                ->with([
+                    'mensaje'=>'No se pudo modificar el producto: '.$prdNombre,
+                    'css'=>'danger'
+                ]);
+        }
+
+
     }
 
     /**
