@@ -216,7 +216,13 @@ class ProductoController extends Controller
                 ]);
         }
 
+    }
 
+    public function preDelete( $id )
+    {
+        //obtenemos los datos de producto
+        $Producto = Producto::find( $id );
+        return view('productoDelete');
     }
 
     /**
