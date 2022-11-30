@@ -50,4 +50,6 @@
     </div>
     @endforeach
 
+    {{ $productos->links() }}
+
 @endsection
