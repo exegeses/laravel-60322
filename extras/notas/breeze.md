@@ -1,4 +1,4 @@
-<img src="../extras/notas/imagenes/breeze.png">
+<img src="../imagenes/breeze.png">
 
 # Laravel Breeze  
 
