@@ -14,7 +14,9 @@ class MarcaController extends Controller
      */
     public function index()
     {
-        //
+        //obtenemos listado de marcas
+        $marcas = Marca::paginate(8);
+        return view('marcas', [ 'marcas'=>$marcas ]);
     }
 
     /**
@@ -24,7 +26,24 @@ class MarcaController extends Controller
      */
     public function create()
     {
-        //
+        return view('marcaCreate');
+    }
+
+    private function validarForm( Request $request )
+    {
+        $request->validate(
+
+            //[ 'campo'=>'reglas' ],
+            [ 'mkNombre'=>'required|min:2|max:45|unique:marcas,mkNombre' ],
+
+            //[ 'campo.regla'=>'mensaje' ]
+            [
+                'mkNombre.required'=>'El campo "Nombre de la marca" es obligatorio.',
+                'mkNombre.min' => 'El campo "Nombre de la marca" debe tener al menos 2 caractéres.',
+                'mkNombre.max' => 'El campo "Nombre de la marca" debe tener como máximo 45 caractéres.',
+                'mkNombre.unique' => 'El campo "Nombre de la marca" ya existe en la base de datos.'
+            ]
+        );
     }
 
     /**
@@ -35,7 +54,34 @@ class MarcaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        //capturar dato
+        $mkNombre = $request->mkNombre;
+        //validación
+        $this->validarForm( $request );
+        //magia para guardar
+        try {
+            //instanciamos
+            $Marca = new marca;
+            //asignamos atributos
+            $Marca->mkNombre = $mkNombre;
+            //almacenamos datos en tabla marcas
+            $Marca->save();
+            return redirect('/marcas')
+                ->with(
+                    [
+                        'mensaje'=>'Marca: '.$mkNombre.' agregada correctamente.',
+                        'css'=>'success'
+                    ]);
+        }
+        catch ( \Throwable $th ){
+            return redirect('/marcas')
+                ->with(
+                    [
+                        'mensaje'=>'No se pudo agregar la marca: '.$mkNombre,
+                        'css'=>'danger'
+                    ]
+                );
+        }
     }
 
     /**
